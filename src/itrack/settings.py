@@ -23,7 +23,7 @@ if not os.path.exists(RESOURCES_DIR):
 
 conf_file_path = os.path.join(RESOURCES_DIR, f"{ITRACK_ENV}.ini")
 if not os.path.exists(conf_file_path):
-    raise OSError(f"{conf_file_path} not found...Aborting!")
+    raise FileNotFoundError(f"{conf_file_path} not found...Aborting!")
 
 CONFIG = ConfigParser()
 CONFIG.read(conf_file_path)
