@@ -11,21 +11,28 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+from configparser import ConfigParser
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+RESOURCES_DIR = os.path.join(BASE_DIR, "resources")
+ITRACK_ENV = os.environ.get("ITRACK_ENV", "development")
 
+if not os.path.exists(RESOURCES_DIR):
+    os.makedirs(RESOURCES_DIR)
 
+CONFIG = ConfigParser()
+CONFIG.read(os.path.join(RESOURCES_DIR, f"{ITRACK_ENV}.ini"))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "q04k%(bf*_7-)rjtokj0a+s#jhx965%egi_9t#08u0g_hcu3-%"
+SECRET_KEY = CONFIG.get("DEFAULT", "SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = CONFIG.getboolean("DEFAULT", "DEBUG")
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -41,11 +48,13 @@ INSTALLED_APPS = [
     "shared",
     "task",
     "user",
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -79,8 +88,12 @@ WSGI_APPLICATION = "itrack.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": CONFIG.get("DATABASE", "NAME"),
+        "HOST": CONFIG.get("DATABASE", "HOST"),
+        "PORT": CONFIG.get("DATABASE", "PORT"),
+        "USER": CONFIG.get("DATABASE", "USER"),
+        "PASSWORD": CONFIG.get("DATABASE", "PASSWORD"),
     }
 }
 
