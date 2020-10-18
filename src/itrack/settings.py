@@ -21,8 +21,12 @@ ITRACK_ENV = os.environ.get("ITRACK_ENV", "development")
 if not os.path.exists(RESOURCES_DIR):
     os.makedirs(RESOURCES_DIR)
 
+conf_file_path = os.path.join(RESOURCES_DIR, f"{ITRACK_ENV}.ini")
+if not os.path.exists(conf_file_path):
+    raise OSError(f"{conf_file_path} not found...Aborting!")
+
 CONFIG = ConfigParser()
-CONFIG.read(os.path.join(RESOURCES_DIR, f"{ITRACK_ENV}.ini"))
+CONFIG.read(conf_file_path)
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
