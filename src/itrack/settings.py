@@ -39,6 +39,8 @@ DEBUG = CONFIG.getboolean("DEFAULT", "DEBUG")
 ALLOWED_HOSTS = ["*"]
 
 
+AUTH_USER_MODEL = "user.User"
+
 # Application definition
 
 INSTALLED_APPS = [
