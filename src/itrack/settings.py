@@ -15,7 +15,7 @@ from configparser import ConfigParser
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-RESOURCES_DIR = os.path.join(BASE_DIR, "resources")
+RESOURCES_DIR = os.path.join(os.path.dirname(BASE_DIR), "resources")
 ITRACK_ENV = os.environ.get("ITRACK_ENV", "development")
 
 if not os.path.exists(RESOURCES_DIR):
