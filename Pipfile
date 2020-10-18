@@ -9,6 +9,7 @@ verify_ssl = true
 django = "==2.2.16"
 mysqlclient = "*"
 djangorestframework = "*"
+django-cors-headers = "*"
 
 [requires]
 python_version = "3.8"
