@@ -19,6 +19,9 @@ class AbstractRemarksHistory(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
+    class Meta:
+        abstract = True
+
 
 class Status(AbstractIdName):
     class Meta:
