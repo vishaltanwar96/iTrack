@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "task",
     "user",
     "corsheaders",
+    "todos",
 ]
 
 MIDDLEWARE = [
