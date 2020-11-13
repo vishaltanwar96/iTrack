@@ -7,6 +7,9 @@ class ITRACKUserManager(BaseUserManager):
     iTrack User manager
     """
 
+    def create(self, **data):
+        return self.create_user(**data)
+
     def create_user(self, email, password, **extra_fields):
 
         if not email:
