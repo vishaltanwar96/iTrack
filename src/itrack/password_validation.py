@@ -49,7 +49,7 @@ class BaseValidator(object):
 
 
 class UpperCaseValidator(BaseValidator):
-    """Validates Uppercase Character in passwords."""
+    """Validates Uppercase Characters in passwords."""
 
     pattern = r"[A-Z]"
     validator_msg_type = "uppercase character"
@@ -57,7 +57,7 @@ class UpperCaseValidator(BaseValidator):
 
 
 class LowerCaseValidator(BaseValidator):
-    """Validates Lowercase Character in passwords."""
+    """Validates Lowercase Characters in passwords."""
 
     pattern = r"[a-z]"
     validator_msg_type = "lowercase character"
@@ -65,7 +65,7 @@ class LowerCaseValidator(BaseValidator):
 
 
 class DigitValidator(BaseValidator):
-    """Validates Uppercase Character in passwords."""
+    """Validates Digits in passwords."""
 
     pattern = r"\d"
     validator_msg_type = "digit"
@@ -73,7 +73,7 @@ class DigitValidator(BaseValidator):
 
 
 class SpecialCharacterValidator(BaseValidator):
-    """Validates Uppercase Character in passwords."""
+    """Validates Special Characters in passwords."""
 
     pattern = r'[!@#$%^&*(),.?":{}|<>]'
     validator_msg_type = "special character"
