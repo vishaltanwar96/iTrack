@@ -1,4 +1,4 @@
-from rest_framework.permissions import DjangoModelPermissions
+from rest_framework.permissions import DjangoModelPermissions, BasePermission
 
 
 class IsAccessAllowedToGroup(DjangoModelPermissions):
@@ -32,3 +32,14 @@ class IsAccessAllowedToGroup(DjangoModelPermissions):
 
         group_permissions = request.user.get_group_permissions()
         return bool(set(group_permissions).intersection(set(perms)))
+
+
+class IsAllowedToLogin(BasePermission):
+    """."""
+
+    def has_permission(self, request, view):
+        """."""
+
+        if not request.user.is_active:
+            return False
+        return True
