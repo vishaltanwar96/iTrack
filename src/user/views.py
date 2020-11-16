@@ -25,7 +25,7 @@ class UserRegistrationView(CreateAPIView):
         # THIS EMAIL MUST BE REPLACED WITH A CELERY TASK AND EMAIL MESSAGE WITH A HTML MESSAGE TEMPLATE
         user.email_user(
             "[ITRACK] ACCOUNT HAS BEEN CREATED",
-            f"Greetings! {user.first_name.title()} {user.last_name.title()}\n\n Your iTrack user account has been created, Please follow the link below to verfiy/confirm your account\nhttp://127.0.0.1:8000/api/users/confirm/{signing.dumps(user.id)}/",
+            f"Greetings!\n{user.first_name.title()} {user.last_name.title()}\n\nYour iTrack user account has been created, Please follow the link below to verify/confirm your account\nhttp://127.0.0.1:8000/api/users/confirm/{signing.dumps(user.id)}/",
         )
 
 
@@ -41,24 +41,26 @@ class UserAccountConfirmationView(APIView):
             user_id = signing.loads(signed_user_token, max_age=timedelta(days=2))
         except signing.SignatureExpired:
             return Response(
-                {"msg": "Signature expired, please request a new one"},
+                {"detail": "Signature expired, please request a new one"},
                 status.HTTP_400_BAD_REQUEST,
             )
         except signing.BadSignature:
-            return Response({"msg": "Invalid signature"}, status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"detail": "Invalid signature"}, status.HTTP_400_BAD_REQUEST
+            )
         try:
             user = User.objects.get(id=user_id)
         except User.DoesNotExist:
-            return Response({"msg": "User not found"}, status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": "User not found"}, status.HTTP_400_BAD_REQUEST)
         if user.is_active:
             return Response(
-                {"msg": "User account already confirmed"}, status.HTTP_409_CONFLICT
+                {"detail": "User account already confirmed"}, status.HTTP_409_CONFLICT
             )
         user.is_active = True
         user.save()
         user.email_user(
             "[ITRACK] ACCOUNT HAS BEEN CONFIRMED",
-            f"Greetings! {user.first_name.title()} {user.last_name.title()}\n\n Your iTrack user account has been confirmed",
+            f"Greetings!\n{user.first_name.title()} {user.last_name.title()}\n\nYour iTrack user account has been successfully confirmed",
         )
         return Response(
             {
