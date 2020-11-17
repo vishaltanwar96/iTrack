@@ -1,17 +1,21 @@
 from datetime import timedelta
 
-from rest_framework.generics import CreateAPIView
+from django.core import signing
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import update_last_login
 from rest_framework import status
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from django.core import signing
+from rest_framework.permissions import AllowAny
+from rest_framework.generics import CreateAPIView
 
-from .models import User
+
 from .serializers import UserSerializer
 
+User = get_user_model()
 
-class UserRegistrationView(CreateAPIView):
+
+class RegistrationView(CreateAPIView):
     """."""
 
     queryset = User.objects.all()
@@ -29,7 +33,7 @@ class UserRegistrationView(CreateAPIView):
         )
 
 
-class UserAccountConfirmationView(APIView):
+class AccountConfirmationView(APIView):
     """."""
 
     permission_classes = [AllowAny]
@@ -51,7 +55,7 @@ class UserAccountConfirmationView(APIView):
         try:
             user = User.objects.get(id=user_id)
         except User.DoesNotExist:
-            return Response({"detail": "User not found"}, status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": "User not found"}, status.HTTP_404_NOT_FOUND)
         if user.is_active:
             return Response(
                 {"detail": "User account already confirmed"}, status.HTTP_409_CONFLICT
