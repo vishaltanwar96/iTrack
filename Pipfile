@@ -10,6 +10,7 @@ django = "==2.2.16"
 mysqlclient = "*"
 djangorestframework = "*"
 django-cors-headers = "*"
+djangorestframework-simplejwt = "*"
 
 [requires]
 python_version = "3.8"
