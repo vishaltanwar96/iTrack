@@ -17,5 +17,8 @@ from django.contrib import admin
 from django.urls import path, include
 
 
-itrack_apps = [path("users/", include("user.urls"))]
+itrack_apps = [
+    path("users/", include("user.urls")),
+    path("projects/", include("project.urls")),
+]
 urlpatterns = [path("admin/", admin.site.urls), path("api/", include(itrack_apps))]
