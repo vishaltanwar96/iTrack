@@ -11,7 +11,7 @@ class User(AbstractUser):
     """
 
     username = None
-    groups = None
+    group_display = "group"
     USERNAME_FIELD = "email"
     objects = ITRACKUserManager()
     REQUIRED_FIELDS = []
@@ -21,9 +21,10 @@ class User(AbstractUser):
         default=False,
         help_text=_("Designates whether this user should be treated as active. "),
     )
-    group = models.ForeignKey(
+    groups = models.ForeignKey(
         Group,
-        verbose_name=_("groups"),
+        db_column="%s_id" % group_display,
+        verbose_name=_("%s" % group_display),
         blank=True,
         help_text=_(
             "The groups this user belongs to. A user will get all permissions "
