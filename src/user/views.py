@@ -2,7 +2,6 @@ from datetime import timedelta
 
 from django.core import signing
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import update_last_login
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -27,6 +26,7 @@ class RegistrationView(CreateAPIView):
 
         user = serializer.save()
         # THIS EMAIL MUST BE REPLACED WITH A CELERY TASK AND EMAIL MESSAGE WITH A HTML MESSAGE TEMPLATE
+        # SEND USER ONLY THE ACTIVATION CODE THAT THEY'LL ENTER ON THE WEBSITE TO ACTIVATE THEIR ACCOUNT
         user.email_user(
             "[ITRACK] ACCOUNT HAS BEEN CREATED",
             f"Greetings!\n{user.first_name.title()} {user.last_name.title()}\n\nYour iTrack user account has been created, Please follow the link below to verify/confirm your account\nhttp://127.0.0.1:8000/api/users/confirm/{signing.dumps(user.id)}/",

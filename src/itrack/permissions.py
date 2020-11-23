@@ -34,7 +34,7 @@ class IsAccessAllowedToGroup(DjangoModelPermissions):
         return bool(set(group_permissions).intersection(set(perms)))
 
 
-class IsAllowedToLogin(BasePermission):
+class IsActiveUser(BasePermission):
     """."""
 
     def has_permission(self, request, view):
