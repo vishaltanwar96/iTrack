@@ -37,7 +37,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = "__all__"
         extra_kwargs = {
             "password": {"write_only": True},
-            "group": {"required": True},
+            "groups": {"required": True},
             "first_name": {"required": True},
             "last_name": {"required": True},
             "user_permissions": {"write_only": True},
