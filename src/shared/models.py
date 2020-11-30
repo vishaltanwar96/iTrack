@@ -36,6 +36,7 @@ class Criticality(AbstractIdName):
 class EntityMixin(models.Model):
     name = models.CharField(
         max_length=100,
+        unique=True,
         validators=(
             validators.MinLengthValidator(
                 limit_value=2,
