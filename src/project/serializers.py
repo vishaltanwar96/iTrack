@@ -10,8 +10,8 @@ class ProjectSerializer(serializers.ModelSerializer):
         model = Project
         fields = "__all__"
         extra_kwargs = {
-            "users": {"default": [serializers.CurrentUserDefault()]},
             "created_by": {
                 "default": serializers.CurrentUserDefault(),
+                "read_only": True,
             },
         }
