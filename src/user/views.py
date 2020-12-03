@@ -9,7 +9,11 @@ from rest_framework.permissions import AllowAny
 from rest_framework.generics import CreateAPIView
 
 
-from .serializers import UserSerializer
+from .serializers import (
+    UserSerializer,
+    PasswordResetEmailSerializer,
+    PasswordResetChangeSerializer,
+)
 
 User = get_user_model()
 
@@ -38,11 +42,13 @@ class AccountConfirmationView(APIView):
 
     permission_classes = [AllowAny]
 
-    def get(self, request, signed_user_token):
+    def post(self, request, signed_user_token):
         """."""
 
+        # signed_user_token validation can be placed in utilities helper functions to validate a token.
         try:
             user_id = signing.loads(signed_user_token, max_age=timedelta(days=2))
+            user = User.objects.get(id=user_id)
         except signing.SignatureExpired:
             return Response(
                 {"detail": "Signature expired, please request a new one"},
@@ -52,10 +58,9 @@ class AccountConfirmationView(APIView):
             return Response(
                 {"detail": "Invalid signature"}, status.HTTP_400_BAD_REQUEST
             )
-        try:
-            user = User.objects.get(id=user_id)
         except User.DoesNotExist:
             return Response({"detail": "User not found"}, status.HTTP_404_NOT_FOUND)
+
         if user.is_active:
             return Response(
                 {"detail": "User account already confirmed"}, status.HTTP_409_CONFLICT
@@ -73,3 +78,99 @@ class AccountConfirmationView(APIView):
             },
             status.HTTP_200_OK,
         )
+
+
+class PasswordResetEmailView(APIView):
+    """
+    Send an email to user if the email exists and user is_active
+    """
+
+    serializer_class = PasswordResetEmailSerializer
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        """Accept email and send email to that user containing a unique signed token"""
+
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            user = User.objects.get(email=serializer.validated_data.get("email"))
+            if not user.is_active:
+                return Response(
+                    {
+                        "detail": "User inactive, please activate your account before proceeding"
+                    },
+                    status.HTTP_400_BAD_REQUEST,
+                )
+        except User.DoesNotExist:
+            return Response(
+                {"detail": "Invalid email, not found"}, status.HTTP_404_NOT_FOUND
+            )
+        else:
+            user.email_user(
+                subject="PASSWORD RESET",
+                message=f"Hi,\nPlease enter the code below to reset your password\nCode: {signing.dumps(user.id)}\n\nThe code expires in 2 days from the time received.",
+            )
+        return Response(
+            {"detail": "An email with password reset code has been sent successfully."},
+            status.HTTP_200_OK,
+        )
+
+
+class PasswordResetConfirmationView(APIView):
+    """Checks whether the provided signed code sent on email is valid"""
+
+    permission_classes = [AllowAny]
+
+    def post(self, request, signed_user_token):
+        """."""
+
+        try:
+            user_id = signing.loads(signed_user_token, max_age=timedelta(days=2))
+            user = User.objects.get(id=user_id)
+        except signing.SignatureExpired:
+            return Response(
+                {"detail": "Signature expired, please proceed to reset password again"},
+                status.HTTP_400_BAD_REQUEST,
+            )
+        except signing.BadSignature:
+            return Response(
+                {"detail": "Invalid signature"}, status.HTTP_400_BAD_REQUEST
+            )
+        except User.DoesNotExist:
+            return Response({"detail": "User not found"}, status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"detail": "Signature validation successful"}, status.HTTP_200_OK
+        )
+
+
+class PasswordResetChangeView(APIView):
+    """."""
+
+    permission_classes = [AllowAny]
+    serializer_class = PasswordResetChangeSerializer
+
+    def post(self, request, signed_user_token):
+        """."""
+
+        try:
+            user_id = signing.loads(signed_user_token, max_age=timedelta(days=2))
+            user = User.objects.get(id=user_id)
+        except signing.SignatureExpired:
+            return Response(
+                {"detail": "Signature expired, please proceed to reset password again"},
+                status.HTTP_400_BAD_REQUEST,
+            )
+        except signing.BadSignature:
+            return Response(
+                {"detail": "Invalid signature"}, status.HTTP_400_BAD_REQUEST
+            )
+        except User.DoesNotExist:
+            return Response({"detail": "User not found"}, status.HTTP_404_NOT_FOUND)
+        else:
+            serializer = self.serializer_class(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            user.set_password(serializer.validated_data["new_password"])
+            user.save()
+        return Response({"detail": "Password reset successful"}, status.HTTP_200_OK)
