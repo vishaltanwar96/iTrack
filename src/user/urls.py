@@ -7,6 +7,7 @@ from .views import (
     PasswordResetEmailView,
     PasswordResetConfirmationView,
     PasswordResetChangeView,
+    ResendActivationEmailView,
 )
 
 
@@ -35,6 +36,11 @@ urlpatterns = [
         "confirm/<str:signed_user_token>/",
         AccountConfirmationView.as_view(),
         name="account_confirmation",
+    ),
+    path(
+        "resend-activation/",
+        ResendActivationEmailView.as_view(),
+        name="resend_activation_email",
     ),
     path("login/", include(login_urlpatterns)),
     path("password-reset/", include(password_reset_urlpatterns)),
