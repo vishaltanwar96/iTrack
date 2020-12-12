@@ -11,7 +11,7 @@ from rest_framework.generics import CreateAPIView
 
 from .serializers import (
     UserSerializer,
-    PasswordResetEmailSerializer,
+    EmailSerializer,
     PasswordResetChangeSerializer,
 )
 
@@ -34,6 +34,39 @@ class RegistrationView(CreateAPIView):
         user.email_user(
             "[ITRACK] ACCOUNT HAS BEEN CREATED",
             f"Greetings!\n{user.first_name.title()} {user.last_name.title()}\n\nYour iTrack user account has been created, Please follow the link below to verify/confirm your account\nhttp://127.0.0.1:8000/api/users/confirm/{signing.dumps(user.id)}/",
+        )
+
+
+class ResendActivationEmailView(APIView):
+    """Resend activation code to the user again on their email"""
+
+    permission_classes = [AllowAny]
+    serializer_class = EmailSerializer
+
+    def post(self, request):
+        """."""
+
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.validated_data["email"]
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response(
+                {"detail": "Invalid email, not found"}, status.HTTP_404_NOT_FOUND
+            )
+        if user.is_active:
+            return Response(
+                {"detail": "User account already active"}, status.HTTP_400_BAD_REQUEST
+            )
+        user.email_user(
+            "[ITRACK] ACCOUNT ACTIVATION CODE",
+            f"Greetings!\n{user.first_name.title()} {user.last_name.title()}\n\nHere's your account activation code {signing.dumps(user.id)}/",
+        )
+        return Response(
+            {"detail": "Activation code has been sent successfully."},
+            status.HTTP_200_OK,
         )
 
 
@@ -85,7 +118,7 @@ class PasswordResetEmailView(APIView):
     Send an email to user if the email exists and user is_active
     """
 
-    serializer_class = PasswordResetEmailSerializer
+    serializer_class = EmailSerializer
     permission_classes = [AllowAny]
 
     def post(self, request):
@@ -128,7 +161,7 @@ class PasswordResetConfirmationView(APIView):
 
         try:
             user_id = signing.loads(signed_user_token, max_age=timedelta(days=2))
-            user = User.objects.get(id=user_id)
+            User.objects.get(id=user_id)
         except signing.SignatureExpired:
             return Response(
                 {"detail": "Signature expired, please proceed to reset password again"},
