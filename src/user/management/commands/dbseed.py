@@ -41,6 +41,7 @@ class Command(BaseCommand):
     )
 
     common_perms = [
+        "view_user",
         "view_project",
         "add_projectremarkshistory",
         "view_projectremarkshistory",
