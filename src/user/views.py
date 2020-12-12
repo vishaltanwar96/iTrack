@@ -2,11 +2,9 @@ from datetime import timedelta
 
 from django.core import signing
 from django.contrib.auth import get_user_model
-from rest_framework import status
-from rest_framework.views import APIView
+from rest_framework import status, views, generics
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
-from rest_framework.generics import CreateAPIView, ListAPIView
 
 
 from .serializers import (
@@ -20,7 +18,7 @@ from itrack.permissions import IsAccessAllowedToGroup
 User = get_user_model()
 
 
-class RegistrationView(CreateAPIView):
+class RegistrationView(generics.CreateAPIView):
     """."""
 
     queryset = User.objects.all()
@@ -39,7 +37,7 @@ class RegistrationView(CreateAPIView):
         )
 
 
-class ResendActivationEmailView(APIView):
+class ResendActivationEmailView(views.APIView):
     """Resend activation code to the user again on their email"""
 
     permission_classes = [AllowAny]
@@ -72,7 +70,7 @@ class ResendActivationEmailView(APIView):
         )
 
 
-class AccountConfirmationView(APIView):
+class AccountConfirmationView(views.APIView):
     """."""
 
     permission_classes = [AllowAny]
@@ -115,7 +113,7 @@ class AccountConfirmationView(APIView):
         )
 
 
-class PasswordResetEmailView(APIView):
+class PasswordResetEmailView(views.APIView):
     """
     Send an email to user if the email exists and user is_active
     """
@@ -153,7 +151,7 @@ class PasswordResetEmailView(APIView):
         )
 
 
-class PasswordResetConfirmationView(APIView):
+class PasswordResetConfirmationView(views.APIView):
     """Checks whether the provided signed code sent on email is valid"""
 
     permission_classes = [AllowAny]
@@ -180,7 +178,7 @@ class PasswordResetConfirmationView(APIView):
         )
 
 
-class PasswordResetChangeView(APIView):
+class PasswordResetChangeView(views.APIView):
     """."""
 
     permission_classes = [AllowAny]
@@ -211,7 +209,7 @@ class PasswordResetChangeView(APIView):
         return Response({"detail": "Password reset successful"}, status.HTTP_200_OK)
 
 
-class UserSearchView(ListAPIView):
+class UserSearchView(generics.ListAPIView):
     """Search user objects either by email, first_name, last_name and their user_id"""
 
     permission_classes = [IsAccessAllowedToGroup]

@@ -1,15 +1,7 @@
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from .views import (
-    RegistrationView,
-    AccountConfirmationView,
-    PasswordResetEmailView,
-    PasswordResetConfirmationView,
-    PasswordResetChangeView,
-    ResendActivationEmailView,
-    UserSearchView,
-)
+from . import views
 
 
 login_urlpatterns = [
@@ -18,30 +10,30 @@ login_urlpatterns = [
 ]
 
 password_reset_urlpatterns = [
-    path("", PasswordResetEmailView.as_view(), name="password_reset_email"),
+    path("", views.PasswordResetEmailView.as_view(), name="password_reset_email"),
     path(
         "confirm/<str:signed_user_token>/",
-        PasswordResetConfirmationView.as_view(),
+        views.PasswordResetConfirmationView.as_view(),
         name="password_reset_confirm",
     ),
     path(
         "change/<str:signed_user_token>/",
-        PasswordResetChangeView.as_view(),
+        views.PasswordResetChangeView.as_view(),
         name="password_reset_change",
     ),
 ]
 
 urlpatterns = [
-    path("", RegistrationView.as_view(), name="register"),
-    path("search/", UserSearchView.as_view(), name="search"),
+    path("", views.RegistrationView.as_view(), name="register"),
+    path("search/", views.UserSearchView.as_view(), name="search"),
     path(
         "confirm/<str:signed_user_token>/",
-        AccountConfirmationView.as_view(),
+        views.AccountConfirmationView.as_view(),
         name="account_confirmation",
     ),
     path(
         "resend-activation/",
-        ResendActivationEmailView.as_view(),
+        views.ResendActivationEmailView.as_view(),
         name="resend_activation_email",
     ),
     path("login/", include(login_urlpatterns)),
