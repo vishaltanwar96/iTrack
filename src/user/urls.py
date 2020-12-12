@@ -8,6 +8,7 @@ from .views import (
     PasswordResetConfirmationView,
     PasswordResetChangeView,
     ResendActivationEmailView,
+    UserSearchView,
 )
 
 
@@ -32,6 +33,7 @@ password_reset_urlpatterns = [
 
 urlpatterns = [
     path("", RegistrationView.as_view(), name="register"),
+    path("search/", UserSearchView.as_view(), name="search"),
     path(
         "confirm/<str:signed_user_token>/",
         AccountConfirmationView.as_view(),

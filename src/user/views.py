@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView
 
 
 from .serializers import (
@@ -14,6 +14,8 @@ from .serializers import (
     EmailSerializer,
     PasswordResetChangeSerializer,
 )
+from .filters import UserFilterSet
+from itrack.permissions import IsAccessAllowedToGroup
 
 User = get_user_model()
 
@@ -207,3 +209,12 @@ class PasswordResetChangeView(APIView):
             user.set_password(serializer.validated_data["new_password"])
             user.save()
         return Response({"detail": "Password reset successful"}, status.HTTP_200_OK)
+
+
+class UserSearchView(ListAPIView):
+    """Search user objects either by email, first_name, last_name and their user_id"""
+
+    permission_classes = [IsAccessAllowedToGroup]
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+    filterset_class = UserFilterSet
