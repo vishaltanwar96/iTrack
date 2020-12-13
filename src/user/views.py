@@ -106,8 +106,7 @@ class AccountConfirmationView(views.APIView):
         )
         return Response(
             {
-                "msg": "User acccount has been confirmed successfully",
-                "data": UserSerializer(instance=user).data,
+                "detail": "User acccount has been confirmed successfully",
             },
             status.HTTP_200_OK,
         )
