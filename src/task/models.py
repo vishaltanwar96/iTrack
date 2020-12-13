@@ -16,6 +16,7 @@ class Task(EntityMixin):
         User, on_delete=models.SET_NULL, related_name="reviewer", null=True
     )
     project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True)
+    dependency = models.CharField(max_length=255)
     expected_completion_date = models.DateField()
     actual_completion_date = models.DateField(null=True)
 
