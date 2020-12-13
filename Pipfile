@@ -12,6 +12,7 @@ djangorestframework = "*"
 django-cors-headers = "*"
 djangorestframework-simplejwt = "*"
 django-filter = "*"
+django-guardian = "*"
 
 [requires]
 python_version = "3.8"
