@@ -13,3 +13,11 @@ class ProjectSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             "created_by": {"default": serializers.CurrentUserDefault()},
         }
+
+
+class ProjectUsersSerializer(serializers.Serializer):
+    """."""
+
+    users = serializers.ListField(
+        child=serializers.IntegerField(min_value=1), allow_empty=False, min_length=1
+    )
