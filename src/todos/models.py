@@ -14,3 +14,4 @@ class Todo(models.Model):
 
     class Meta:
         db_table = "todo"
+        ordering = ["-created_at"]
