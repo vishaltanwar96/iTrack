@@ -16,6 +16,8 @@ class User(AbstractUser):
     objects = ITRACKUserManager()
     REQUIRED_FIELDS = []
     email = models.EmailField(_("email address"), unique=True)
+    first_name = models.CharField(_("first name"), max_length=30)
+    last_name = models.CharField(_("last name"), max_length=150)
     is_active = models.BooleanField(
         _("active"),
         default=False,
