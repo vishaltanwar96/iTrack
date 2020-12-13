@@ -62,7 +62,7 @@ class ResendActivationEmailView(views.APIView):
             )
         user.email_user(
             "[ITRACK] ACCOUNT ACTIVATION CODE",
-            f"Greetings!\n{user.first_name.title()} {user.last_name.title()}\n\nHere's your account activation code {signing.dumps(user.id)}/",
+            f"Greetings!\n{user.first_name.title()} {user.last_name.title()}\n\nHere's your account activation code {signing.dumps(user.id)}",
         )
         return Response(
             {"detail": "Activation code has been sent successfully."},
@@ -203,7 +203,7 @@ class PasswordResetChangeView(views.APIView):
         else:
             serializer = self.serializer_class(data=request.data)
             serializer.is_valid(raise_exception=True)
-            user.set_password(serializer.validated_data["new_password"])
+            user.set_password(serializer.validated_data["password"])
             user.save()
         return Response({"detail": "Password reset successful"}, status.HTTP_200_OK)
 
