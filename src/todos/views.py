@@ -12,14 +12,14 @@ class TodoViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.DjangoObjectPermissions]
     queryset = Todo.objects.all()
     serializer_class = TodoSerializer
+    object_level_permissions = ["view_todo", "change_todo", "delete_todo"]
 
     def perform_create(self, serializer):
         """."""
 
         todo_instance = serializer.save(belongs_to=self.request.user)
-        assign_perm("view_todo", self.request.user, todo_instance)
-        assign_perm("change_todo", self.request.user, todo_instance)
-        assign_perm("delete_todo", self.request.user, todo_instance)
+        for permission in self.object_level_permissions:
+            assign_perm(permission, self.request.user, todo_instance)
 
     def perform_destroy(self, instance):
         """."""
