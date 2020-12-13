@@ -21,3 +21,13 @@ class ProjectUsersSerializer(serializers.Serializer):
     users = serializers.ListField(
         child=serializers.IntegerField(min_value=1), allow_empty=False, min_length=1
     )
+
+
+class ProjectRemarksHistorySerializer(serializers.ModelSerializer):
+    """."""
+
+    class Meta:
+        model = ProjectRemarksHistory
+        fields = "__all__"
+        ordering = ["-created_at"]
+        read_only_fields = ("project", "created_by")
