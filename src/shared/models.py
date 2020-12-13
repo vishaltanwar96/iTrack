@@ -8,7 +8,7 @@ class AbstractIdName(models.Model):
     Abstract Model for id name Models
     """
 
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
 
     class Meta:
         abstract = True
