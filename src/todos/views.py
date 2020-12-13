@@ -1,4 +1,5 @@
 from django.db.models import QuerySet
+from guardian.shortcuts import assign_perm
 from rest_framework import viewsets, permissions
 
 from .models import Todo
@@ -15,7 +16,16 @@ class TodoViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """."""
 
-        serializer.save(belongs_to=self.request.user)
+        todo_instance = serializer.save(belongs_to=self.request.user)
+        assign_perm("view_todo", self.request.user, todo_instance)
+        assign_perm("change_todo", self.request.user, todo_instance)
+        assign_perm("delete_todo", self.request.user, todo_instance)
+
+    def perform_destroy(self, instance):
+        """."""
+
+        instance.is_complete = True
+        instance.save()
 
     def get_queryset(self):
         """."""
@@ -25,8 +35,7 @@ class TodoViewSet(viewsets.ModelViewSet):
             "or override the `get_queryset()` method." % self.__class__.__name__
         )
 
-        queryset = self.queryset
-        queryset = queryset.filter(belongs_to=self.request.user)
+        queryset = self.queryset.filter(belongs_to=self.request.user)
         if isinstance(queryset, QuerySet):
             # Ensure queryset is re-evaluated on each request.
             queryset = queryset.all()
