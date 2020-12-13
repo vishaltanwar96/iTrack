@@ -7,8 +7,8 @@ from shared.models import AbstractRemarksHistory, EntityMixin
 class Project(EntityMixin):
     users = models.ManyToManyField(
         User,
-        related_name="user_set",
-        related_query_name="user_set",
+        related_name="projects",
+        related_query_name="projects",
     )
 
     class Meta:
