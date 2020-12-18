@@ -30,4 +30,7 @@ class ProjectRemarksHistorySerializer(serializers.ModelSerializer):
         model = ProjectRemarksHistory
         fields = "__all__"
         ordering = ["-created_at"]
-        read_only_fields = ("project", "created_by")
+        read_only_fields = ("created_by",)
+        extra_kwargs = {
+            "created_by": {"default": serializers.CurrentUserDefault()},
+        }
