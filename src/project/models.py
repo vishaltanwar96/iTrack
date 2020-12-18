@@ -13,6 +13,7 @@ class Project(EntityMixin):
 
     class Meta:
         db_table = "project"
+        ordering = ["id"]
 
 
 class ProjectRemarksHistory(AbstractRemarksHistory):
@@ -20,3 +21,4 @@ class ProjectRemarksHistory(AbstractRemarksHistory):
 
     class Meta:
         db_table = "project_remarks_history"
+        ordering = ["id"]
