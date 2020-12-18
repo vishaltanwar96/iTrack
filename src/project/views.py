@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
 from .models import Project, ProjectRemarksHistory
@@ -21,6 +22,11 @@ class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     permission_classes = [IsAccessAllowedToGroup]
+
+    def get_queryset(self):
+        """."""
+
+        return self.request.user.projects.all()
 
     def perform_create(self, serializer):
         """."""
@@ -84,40 +90,35 @@ class ProjectViewSet(viewsets.ModelViewSet):
             status.HTTP_200_OK,
         )
 
-    # two actions defined on same url_path doesn't work will have to use something else for nested url relationships
-    @action(
-        methods=["post"],
-        detail=True,
-        url_path="remarks",
-        url_name="remarks",
-    )
-    def add_remarks(self, request, pk=None):
-        """Add remarks to current project"""
 
-        project = self.get_object()
-        serializer = ProjectRemarksHistorySerializer(data=request.data)
+class ProjectRemarksHistoryViewSet(viewsets.ModelViewSet):
+    """."""
+
+    queryset = ProjectRemarksHistory.objects.all()
+    permission_classes = [IsAccessAllowedToGroup]
+    serializer_class = ProjectRemarksHistorySerializer
+
+    def perform_create(self, serializer):
+        """."""
+
+        serializer.save(created_by=self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        """."""
+
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        ProjectRemarksHistory.objects.create(
-            **serializer.validated_data,
-            **{"project": project, "created_by": request.user},
-        )
+        if request.user not in serializer.validated_data["project"].users.all():
+            raise PermissionDenied
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
         return Response(
-            {"detail": "remarks has been added to the project successfully"},
-            status.HTTP_200_OK,
+            serializer.data, status=status.HTTP_201_CREATED, headers=headers
         )
 
-    @action(
-        methods=["get"],
-        detail=True,
-        url_path="remarks",
-        url_name="remarks",
-    )
-    def fetch_remarks(self, request, pk=None):
-        """Get all the remarks from current project"""
+    def get_queryset(self):
+        """."""
 
-        remarks = ProjectRemarksHistory.objects.filter(project=self.get_object().id)
-        serializer = ProjectRemarksHistorySerializer(instance=remarks, many=True)
-        return Response(
-            serializer.data,
-            status.HTTP_200_OK,
+        return self.queryset.filter(
+            project__in=[project.id for project in self.request.user.projects.all()]
         )
