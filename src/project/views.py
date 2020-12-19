@@ -6,6 +6,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
 from .models import Project, ProjectRemarksHistory
+from .filters import ProjectRemarksHistoryFilterSet
 from .serializers import (
     ProjectSerializer,
     ProjectUsersSerializer,
@@ -22,6 +23,15 @@ class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     permission_classes = [IsAccessAllowedToGroup]
+
+    def destroy(self, request, *args, **kwargs):
+        """."""
+
+        instance = self.get_object()
+        instance.is_active = False
+        instance.save()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     def get_queryset(self):
         """."""
@@ -60,6 +70,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         for user_id in serializer.validated_data["users"]:
             user = get_object_or_404(User, id=user_id)
+            if user in project.users.all():
+                continue
             project.users.add(user)
             user.email_user(
                 subject="WELCOME TO THE PROJECT",
@@ -84,9 +96,14 @@ class ProjectViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         for user_id in serializer.validated_data["users"]:
             user = get_object_or_404(User, id=user_id)
+            if user == self.request.user:
+                return Response(
+                    {"detail": "You cannot remove yourself from the project"},
+                    status.HTTP_400_BAD_REQUEST,
+                )
             project.users.remove(user)
         return Response(
-            {"detail": "users have been remove from the project successfully"},
+            {"detail": "users have been removed from the project successfully"},
             status.HTTP_200_OK,
         )
 
@@ -97,6 +114,7 @@ class ProjectRemarksHistoryViewSet(viewsets.ModelViewSet):
     queryset = ProjectRemarksHistory.objects.all()
     permission_classes = [IsAccessAllowedToGroup]
     serializer_class = ProjectRemarksHistorySerializer
+    filterset_class = ProjectRemarksHistoryFilterSet
 
     def perform_create(self, serializer):
         """."""
