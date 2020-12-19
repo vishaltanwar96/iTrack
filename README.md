@@ -8,3 +8,5 @@ python manage.py dbseed
 ## TODO
 - [ ] Write tests
 - [ ] Migrate all email related tasks from APIs to celery
+- [ ] Support attachments in tasks
+- [ ] Create a issue tracker app for testing of projects
