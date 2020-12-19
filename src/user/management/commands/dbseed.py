@@ -22,10 +22,11 @@ class Command(BaseCommand):
     WIP = "WIP"
     ONHOLD = "ONHOLD"
     INREVIEW = "IN-REVIEW"
-    SCHEDULED = "SCHEDULED"
+    # SCHEDULED = "SCHEDULED"
     COMPLETED = "COMPLETED"
     ABANDONED = "ABANDONED"
     PLANNED = "PLANNED"
+    NEED_MORE_INFO = "NEED MORE INFO"
 
     groups = (MANAGER, CONTRIBUTOR)
     criticalities = (LOW, MEDIUM, HIGH, SEVERE)
@@ -34,10 +35,11 @@ class Command(BaseCommand):
         WIP,
         ONHOLD,
         INREVIEW,
-        SCHEDULED,
+        # SCHEDULED,
         COMPLETED,
         ABANDONED,
         PLANNED,
+        NEED_MORE_INFO,
     )
 
     common_perms = [
