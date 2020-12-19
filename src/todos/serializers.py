@@ -10,7 +10,7 @@ class TodoSerializer(serializers.ModelSerializer):
 
         model = Todo
         fields = "__all__"
-        read_only_fields = ("belongs_to",)
+        read_only_fields = ("belongs_to", "is_complete", "created_at", "updated_at")
         extra_kwargs = {
             "belongs_to": {"default": serializers.CurrentUserDefault()},
         }
