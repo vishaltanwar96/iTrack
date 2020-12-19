@@ -9,7 +9,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
         fields = "__all__"
-        read_only_fields = ("created_by",)
+        read_only_fields = ("created_by", "created_at", "updated_at")
         extra_kwargs = {
             "created_by": {"default": serializers.CurrentUserDefault()},
         }
