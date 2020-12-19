@@ -6,4 +6,5 @@ router = DefaultRouter()
 router.register("projects", ProjectViewSet)
 router.register("remarks", ProjectRemarksHistoryViewSet)
 
-urlpatterns = router.urls
+urlpatterns = []
+urlpatterns += router.urls
