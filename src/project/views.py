@@ -66,6 +66,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
     def task_metrics(self, request, pk=None):
         """Task metrics in current project"""
 
+        # Could the equivalent be achieved in Django ORM query? Cuz this looks ugly :(
+
         project = self.get_object()
         project_task_metrics_query = """
             SELECT 
