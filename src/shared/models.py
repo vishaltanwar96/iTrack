@@ -34,13 +34,14 @@ class Criticality(AbstractIdName):
 
 
 class EntityMixin(models.Model):
+    entity = None
     name = models.CharField(
         max_length=100,
         unique=True,
         validators=(
             validators.MinLengthValidator(
                 limit_value=2,
-                message="Project name need to be atleast 2 characters long",
+                message=f"{entity} name need to be atleast 2 characters long",
             ),
         ),
     )
@@ -48,7 +49,7 @@ class EntityMixin(models.Model):
         validators=(
             validators.MinLengthValidator(
                 limit_value=10,
-                message="Project description must be atleast 10 characters long",
+                message=f"{entity} description must be atleast 10 characters long",
             ),
         ),
     )

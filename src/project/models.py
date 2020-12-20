@@ -5,6 +5,7 @@ from shared.models import AbstractRemarksHistory, EntityMixin
 
 
 class Project(EntityMixin):
+    entity = "Project"
     users = models.ManyToManyField(
         User,
         related_name="projects",

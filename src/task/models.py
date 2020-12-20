@@ -6,6 +6,7 @@ from shared.models import EntityMixin, AbstractRemarksHistory
 
 
 class Task(EntityMixin):
+    entity = "Task"
     assigned_to = models.ForeignKey(
         User, on_delete=models.SET_NULL, related_name="responsible", null=True
     )
