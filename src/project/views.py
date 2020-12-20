@@ -81,7 +81,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
             WHERE
                 task.project_id = %s
                     OR task.project_id IS NULL
-            GROUP BY status.name;
+            GROUP BY status.id;
         """
         with connection.cursor() as cursor:
             cursor.execute(project_task_metrics_query, [project.id])
