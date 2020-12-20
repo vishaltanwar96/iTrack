@@ -25,6 +25,21 @@ class ProjectViewSet(viewsets.ModelViewSet):
     serializer_class = ProjectSerializer
     permission_classes = [IsAccessAllowedToGroup]
 
+    project_task_metrics_query = """
+        SELECT 
+            status.id AS status_id,
+            status.name AS status_name,
+            COUNT(task.status_id) AS task_count
+        FROM
+            task
+                RIGHT JOIN
+            status ON task.status_id = status.id
+        WHERE
+            task.project_id = %s
+                OR task.project_id IS NULL
+        GROUP BY status.id;
+    """
+
     def destroy(self, request, *args, **kwargs):
         """."""
 
@@ -69,22 +84,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
         # Could the equivalent be achieved in Django ORM query? Cuz this looks ugly :(
 
         project = self.get_object()
-        project_task_metrics_query = """
-            SELECT 
-                status.id AS status_id,
-                status.name AS status_name,
-                COUNT(task.status_id) AS task_count
-            FROM
-                task
-                    RIGHT JOIN
-                status ON task.status_id = status.id
-            WHERE
-                task.project_id = %s
-                    OR task.project_id IS NULL
-            GROUP BY status.id;
-        """
         with connection.cursor() as cursor:
-            cursor.execute(project_task_metrics_query, [project.id])
+            cursor.execute(self.project_task_metrics_query, [project.id])
             columns = [column_desciption[0] for column_desciption in cursor.description]
             project_task_metrics_data = [
                 dict(zip(columns, project_task_metric))
