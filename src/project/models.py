@@ -1,10 +1,10 @@
 from django.db import models
 
 from user.models import User
-from shared.models import AbstractRemarksHistory, EntityMixin
+from shared.models import AbstractRemarksHistory, AbstractEntity
 
 
-class Project(EntityMixin):
+class Project(AbstractEntity):
     entity = "Project"
     users = models.ManyToManyField(
         User,
@@ -18,7 +18,7 @@ class Project(EntityMixin):
 
 
 class ProjectRemarksHistory(AbstractRemarksHistory):
-    project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
     class Meta:
         db_table = "project_remarks_history"
