@@ -17,7 +17,7 @@ class AbstractIdName(models.Model):
 class AbstractRemarksHistory(models.Model):
     remarks = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
 
     class Meta:
         abstract = True
@@ -27,13 +27,23 @@ class Status(AbstractIdName):
     class Meta:
         db_table = "status"
 
+    def __str__(self):
+        """."""
+
+        return "%s" % (self.name,)
+
 
 class Criticality(AbstractIdName):
     class Meta:
         db_table = "criticality"
 
+    def __str__(self):
+        """."""
 
-class EntityMixin(models.Model):
+        return "%s" % (self.name,)
+
+
+class AbstractEntity(models.Model):
     entity = None
     name = models.CharField(
         max_length=100,

@@ -2,23 +2,23 @@ from django.db import models
 
 from user.models import User
 from project.models import Project
-from shared.models import EntityMixin, AbstractRemarksHistory
+from shared.models import AbstractEntity, AbstractRemarksHistory
 
 
-class Task(EntityMixin):
+class Task(AbstractEntity):
     entity = "Task"
     assigned_to = models.ForeignKey(
-        User, on_delete=models.SET_NULL, related_name="responsible", null=True
+        User, on_delete=models.CASCADE, related_name="responsible"
     )
     assigned_by = models.ForeignKey(
-        User, on_delete=models.SET_NULL, related_name="creator", null=True
+        User, on_delete=models.CASCADE, related_name="creator"
     )
     reviewed_by = models.ForeignKey(
-        User, on_delete=models.SET_NULL, related_name="reviewer", null=True
+        User, on_delete=models.CASCADE, related_name="reviewer"
     )
-    project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
     # dependency limited to one person for now
-    dependency = models.CharField(max_length=255, default=None)
+    dependency = models.CharField(max_length=255, null=True)
     expected_completion_date = models.DateField()
     actual_completion_date = models.DateField(null=True)
 
@@ -27,7 +27,7 @@ class Task(EntityMixin):
 
 
 class TaskRemarksHistory(AbstractRemarksHistory):
-    task = models.ForeignKey(Task, on_delete=models.SET_NULL, null=True)
+    task = models.ForeignKey(Task, on_delete=models.CASCADE)
 
     class Meta:
         db_table = "task_remarks_history"
