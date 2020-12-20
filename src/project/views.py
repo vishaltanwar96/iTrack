@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db import connection
 from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -55,6 +56,40 @@ class ProjectViewSet(viewsets.ModelViewSet):
         return Response(
             serializer.data, status=status.HTTP_201_CREATED, headers=headers
         )
+
+    @action(
+        methods=["get"],
+        detail=True,
+        url_path="metrics",
+        url_name="task-metrics",
+    )
+    def task_metrics(self, request, pk=None):
+        """Task metrics in current project"""
+
+        project = self.get_object()
+        project_task_metrics_query = """
+            SELECT 
+                status.id AS status_id,
+                status.name AS status_name,
+                COUNT(task.status_id) AS task_count
+            FROM
+                task
+                    RIGHT JOIN
+                status ON task.status_id = status.id
+            WHERE
+                task.project_id = %s
+                    OR task.project_id IS NULL
+            GROUP BY status.name;
+        """
+        with connection.cursor() as cursor:
+            cursor.execute(project_task_metrics_query, [project.id])
+            columns = [column_desciption[0] for column_desciption in cursor.description]
+            project_task_metrics_data = [
+                dict(zip(columns, project_task_metric))
+                for project_task_metric in cursor.fetchall()
+            ]
+
+        return Response(project_task_metrics_data, status.HTTP_200_OK)
 
     @action(
         methods=["post"],
