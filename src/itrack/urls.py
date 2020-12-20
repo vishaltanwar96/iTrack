@@ -22,5 +22,6 @@ itrack_apps = [
     path("projects/", include("project.urls")),
     path("todos/", include("todos.urls")),
     path("shared/", include("shared.urls")),
+    path("tasks/", include("task.urls")),
 ]
 urlpatterns = [path("admin/", admin.site.urls), path("api/", include(itrack_apps))]
