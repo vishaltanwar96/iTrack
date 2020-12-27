@@ -11,7 +11,10 @@ class TaskSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = (
             "created_at",
+            "created_by",
             "updated_at",
             "actual_completion_date",
             "reviewed_by",
         )
+
+        extra_kwargs = {"created_by": {"default": serializers.CurrentUserDefault()}}
