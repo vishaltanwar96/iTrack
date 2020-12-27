@@ -1,10 +1,10 @@
-from rest_framework import viewsets, permissions, status, exceptions
+from rest_framework import viewsets, status, exceptions
 from rest_framework.response import Response
 
 from .models import Task
 from .serializers import TaskSerializer
-
 from shared.models import Status
+from itrack.permissions import IsAccessAllowedToGroup
 
 
 class TaskViewSet(viewsets.ModelViewSet):
@@ -12,12 +12,12 @@ class TaskViewSet(viewsets.ModelViewSet):
 
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
-    permission_classes = [permissions.DjangoModelPermissions]
+    permission_classes = [IsAccessAllowedToGroup]
 
     def perform_create(self, serializer):
         """."""
 
-        return serializer.save()
+        return serializer.save(created_by=self.request.user)
 
     def create(self, request, *args, **kwargs):
         """."""
@@ -27,12 +27,15 @@ class TaskViewSet(viewsets.ModelViewSet):
             data={
                 **request.data,
                 "status": Status.objects.get(name="ASSIGNED").id,
-                "created_by": request.user.id,
                 "assigned_by": request.user.id,
             }
         )
         serializer.is_valid(raise_exception=True)
-        if serializer.validated_data["project"] not in request.user.projects.all():
+        project = serializer.validated_data["project"]
+        if not all(
+            user in project.users.all()
+            for user in [request.user, serializer.validated_data["assigned_to"]]
+        ):
             raise exceptions.PermissionDenied
         assigned_to_user = serializer.validated_data["assigned_to"]
         task = self.perform_create(serializer)
