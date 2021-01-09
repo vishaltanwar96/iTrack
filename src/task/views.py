@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from .models import Task
 from .serializers import TaskSerializer
 from shared.models import Status
+from itrack import constants
 from itrack.permissions import IsAccessAllowedToGroup
 from itrack.communication_messages import EMAIL_BODY, EMAIL_SUBJECT
 
@@ -24,11 +25,10 @@ class TaskViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         """."""
 
-        # move all constants like 'ASSIGNED' to a separate module when refactoring the project
         serializer = self.get_serializer(
             data={
                 **request.data,
-                "status": Status.objects.get(name="ASSIGNED").id,
+                "status": Status.objects.get(name=constants.ASSIGNED).id,
                 "assigned_by": request.user.id,
             }
         )
