@@ -6,6 +6,7 @@ from rest_framework import status, views, generics
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 
+from itrack import constants
 from itrack.communication_messages import EMAIL_BODY, EMAIL_SUBJECT
 
 
@@ -26,7 +27,6 @@ class RegistrationView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = [AllowAny]
     serializer_class = UserSerializer
-    USER_ACCOUNT_CREATED = "USER_ACCOUNT_CREATED"
 
     def perform_create(self, serializer):
         """."""
@@ -35,8 +35,8 @@ class RegistrationView(generics.CreateAPIView):
         # THIS EMAIL MUST BE REPLACED WITH A CELERY TASK AND EMAIL MESSAGE WITH A HTML MESSAGE TEMPLATE
         # SEND USER ONLY THE ACTIVATION CODE THAT THEY'LL ENTER ON THE WEBSITE TO ACTIVATE THEIR ACCOUNT
         user.email_user(
-            subject=EMAIL_SUBJECT[self.USER_ACCOUNT_CREATED],
-            message=EMAIL_BODY[self.USER_ACCOUNT_CREATED].format(
+            subject=EMAIL_SUBJECT[constants.USER_ACCOUNT_CREATED],
+            message=EMAIL_BODY[constants.USER_ACCOUNT_CREATED].format(
                 user_first_name=user.first_name,
                 user_last_name=user.last_name,
                 secret_key_signed_code=signing.dumps(user.id),
@@ -49,7 +49,6 @@ class ResendActivationEmailView(views.APIView):
 
     permission_classes = [AllowAny]
     serializer_class = EmailSerializer
-    RESEND_ACTIVATION_CODE_EVENT = "RESEND_ACTIVATION_CODE"
 
     def post(self, request):
         """."""
@@ -69,8 +68,8 @@ class ResendActivationEmailView(views.APIView):
                 {"detail": "User account already active"}, status.HTTP_400_BAD_REQUEST
             )
         user.email_user(
-            subject=EMAIL_SUBJECT[self.RESEND_ACTIVATION_CODE_EVENT],
-            message=EMAIL_BODY[self.RESEND_ACTIVATION_CODE_EVENT].format(
+            subject=EMAIL_SUBJECT[constants.RESEND_ACTIVATION_CODE],
+            message=EMAIL_BODY[constants.RESEND_ACTIVATION_CODE].format(
                 user_first_name=user.first_name,
                 user_last_name=user.last_name,
                 secret_key_signed_code=signing.dumps(user.id),
@@ -86,7 +85,6 @@ class AccountConfirmationView(views.APIView):
     """."""
 
     permission_classes = [AllowAny]
-    ACCOUNT_CONFIRMATION_EVENT = "ACCOUNT_CONFIRMATION"
 
     def post(self, request, signed_user_token):
         """."""
@@ -114,8 +112,8 @@ class AccountConfirmationView(views.APIView):
         user.is_active = True
         user.save()
         user.email_user(
-            subject=EMAIL_SUBJECT[self.ACCOUNT_CONFIRMATION_EVENT],
-            message=EMAIL_BODY[self.ACCOUNT_CONFIRMATION_EVENT].format(
+            subject=EMAIL_SUBJECT[constants.ACCOUNT_CONFIRMATION],
+            message=EMAIL_BODY[constants.ACCOUNT_CONFIRMATION].format(
                 user_first_name=user.first_name,
                 user_last_name=user.last_name,
             ),
@@ -158,8 +156,8 @@ class PasswordResetEmailView(views.APIView):
             )
         else:
             user.email_user(
-                subject=EMAIL_SUBJECT[self.RESET_PASSWORD_EVENT],
-                message=EMAIL_BODY[self.RESET_PASSWORD_EVENT].format(
+                subject=EMAIL_SUBJECT[constants.RESET_PASSWORD],
+                message=EMAIL_BODY[constants.RESET_PASSWORD].format(
                     user_first_name=user.first_name,
                     user_last_name=user.last_name,
                     secret_key_signed_code=signing.dumps(user.id),

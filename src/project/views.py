@@ -13,7 +13,9 @@ from .serializers import (
     ProjectUsersSerializer,
     ProjectRemarksHistorySerializer,
 )
+from task.serializers import TaskSerializer
 from itrack.permissions import IsAccessAllowedToGroup
+from itrack import constants
 from itrack.communication_messages import EMAIL_BODY, EMAIL_SUBJECT
 
 User = get_user_model()
@@ -25,7 +27,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     permission_classes = [IsAccessAllowedToGroup]
-    NEW_PROJECT_ASSOCIATION_EVENT = "NEW_PROJECT_ASSOCIATION"
 
     project_task_metrics_query = """
         SELECT 
@@ -84,6 +85,22 @@ class ProjectViewSet(viewsets.ModelViewSet):
         return Response(project_task_metrics_data, status.HTTP_200_OK)
 
     @action(
+        methods=["get"],
+        detail=True,
+        url_path="tasks",
+        url_name="tasks",
+    )
+    def tasks(self, request, pk=None):
+        """All the tasks in current project"""
+
+        project = self.get_object()
+        project_tasks = project.task_set.all()
+
+        return Response(
+            TaskSerializer(instance=project_tasks, many=True).data, status.HTTP_200_OK
+        )
+
+    @action(
         methods=["post"],
         detail=True,
         url_path="associate-users",
@@ -101,8 +118,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 continue
             project.users.add(user)
             user.email_user(
-                subject=EMAIL_SUBJECT[self.NEW_PROJECT_ASSOCIATION_EVENT],
-                message=EMAIL_BODY[self.NEW_PROJECT_ASSOCIATION_EVENT].format(
+                subject=EMAIL_SUBJECT[constants.NEW_PROJECT_ASSOCIATION],
+                message=EMAIL_BODY[constants.NEW_PROJECT_ASSOCIATION].format(
                     user_first_name=user.first_name,
                     user_last_name=user.last_name,
                     project_name=project.name,
