@@ -11,3 +11,4 @@ python manage.py dbseed
 - [ ] Support attachments in tasks
 - [ ] Create a issue tracker app for testing of projects
 - [x] Add From Email in all the email communications
+- [ ] Add Audit Log to all the model & their instances to track each and every change
