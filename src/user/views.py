@@ -6,6 +6,8 @@ from rest_framework import status, views, generics
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 
+from itrack.communication_messages import EMAIL_BODY, EMAIL_SUBJECT
+
 
 from .serializers import (
     UserSerializer,
@@ -24,6 +26,7 @@ class RegistrationView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = [AllowAny]
     serializer_class = UserSerializer
+    USER_ACCOUNT_CREATED = "USER_ACCOUNT_CREATED"
 
     def perform_create(self, serializer):
         """."""
@@ -32,8 +35,12 @@ class RegistrationView(generics.CreateAPIView):
         # THIS EMAIL MUST BE REPLACED WITH A CELERY TASK AND EMAIL MESSAGE WITH A HTML MESSAGE TEMPLATE
         # SEND USER ONLY THE ACTIVATION CODE THAT THEY'LL ENTER ON THE WEBSITE TO ACTIVATE THEIR ACCOUNT
         user.email_user(
-            "[ITRACK] ACCOUNT HAS BEEN CREATED",
-            f"Greetings!\n{user.first_name.title()} {user.last_name.title()}\n\nYour iTrack user account has been created, Please follow the link below to verify/confirm your account\nhttp://127.0.0.1:8000/api/users/confirm/{signing.dumps(user.id)}/",
+            subject=EMAIL_SUBJECT[self.USER_ACCOUNT_CREATED],
+            message=EMAIL_BODY[self.USER_ACCOUNT_CREATED].format(
+                user_first_name=user.first_name,
+                user_last_name=user.last_name,
+                secret_key_signed_code=signing.dumps(user.id),
+            ),
         )
 
 
@@ -42,6 +49,7 @@ class ResendActivationEmailView(views.APIView):
 
     permission_classes = [AllowAny]
     serializer_class = EmailSerializer
+    RESEND_ACTIVATION_CODE_EVENT = "RESEND_ACTIVATION_CODE"
 
     def post(self, request):
         """."""
@@ -61,8 +69,12 @@ class ResendActivationEmailView(views.APIView):
                 {"detail": "User account already active"}, status.HTTP_400_BAD_REQUEST
             )
         user.email_user(
-            "[ITRACK] ACCOUNT ACTIVATION CODE",
-            f"Greetings!\n{user.first_name.title()} {user.last_name.title()}\n\nHere's your account activation code {signing.dumps(user.id)}",
+            subject=EMAIL_SUBJECT[self.RESEND_ACTIVATION_CODE_EVENT],
+            message=EMAIL_BODY[self.RESEND_ACTIVATION_CODE_EVENT].format(
+                user_first_name=user.first_name,
+                user_last_name=user.last_name,
+                secret_key_signed_code=signing.dumps(user.id),
+            ),
         )
         return Response(
             {"detail": "Activation code has been sent successfully."},
@@ -74,6 +86,7 @@ class AccountConfirmationView(views.APIView):
     """."""
 
     permission_classes = [AllowAny]
+    ACCOUNT_CONFIRMATION_EVENT = "ACCOUNT_CONFIRMATION"
 
     def post(self, request, signed_user_token):
         """."""
@@ -101,8 +114,11 @@ class AccountConfirmationView(views.APIView):
         user.is_active = True
         user.save()
         user.email_user(
-            "[ITRACK] ACCOUNT HAS BEEN CONFIRMED",
-            f"Greetings!\n{user.first_name.title()} {user.last_name.title()}\n\nYour iTrack user account has been successfully confirmed",
+            subject=EMAIL_SUBJECT[self.ACCOUNT_CONFIRMATION_EVENT],
+            message=EMAIL_BODY[self.ACCOUNT_CONFIRMATION_EVENT].format(
+                user_first_name=user.first_name,
+                user_last_name=user.last_name,
+            ),
         )
         return Response(
             {
@@ -119,6 +135,7 @@ class PasswordResetEmailView(views.APIView):
 
     serializer_class = EmailSerializer
     permission_classes = [AllowAny]
+    RESET_PASSWORD_EVENT = "RESET_PASSWORD"
 
     def post(self, request):
         """Accept email and send email to that user containing a unique signed token"""
@@ -141,8 +158,12 @@ class PasswordResetEmailView(views.APIView):
             )
         else:
             user.email_user(
-                subject="PASSWORD RESET",
-                message=f"Hi,\nPlease enter the code below to reset your password\nCode: {signing.dumps(user.id)}\n\nThe code expires in 2 days from the time received.",
+                subject=EMAIL_SUBJECT[self.RESET_PASSWORD_EVENT],
+                message=EMAIL_BODY[self.RESET_PASSWORD_EVENT].format(
+                    user_first_name=user.first_name,
+                    user_last_name=user.last_name,
+                    secret_key_signed_code=signing.dumps(user.id),
+                ),
             )
         return Response(
             {"detail": "An email with password reset code has been sent successfully."},

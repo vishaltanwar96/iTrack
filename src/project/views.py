@@ -14,6 +14,7 @@ from .serializers import (
     ProjectRemarksHistorySerializer,
 )
 from itrack.permissions import IsAccessAllowedToGroup
+from itrack.communication_messages import EMAIL_BODY, EMAIL_SUBJECT
 
 User = get_user_model()
 
@@ -24,6 +25,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     permission_classes = [IsAccessAllowedToGroup]
+    NEW_PROJECT_ASSOCIATION_EVENT = "NEW_PROJECT_ASSOCIATION"
 
     project_task_metrics_query = """
         SELECT 
@@ -112,8 +114,12 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 continue
             project.users.add(user)
             user.email_user(
-                subject="WELCOME TO THE PROJECT",
-                message=f"Greetings!\n{user.first_name} {user.last_name},\nWelcome to the Project-{project.name}, we look forward for your contribution\nSincerely\niTrack",
+                subject=EMAIL_SUBJECT[self.NEW_PROJECT_ASSOCIATION_EVENT],
+                message=EMAIL_BODY[self.NEW_PROJECT_ASSOCIATION_EVENT].format(
+                    user_first_name=user.first_name,
+                    user_last_name=user.last_name,
+                    project_name=project.name,
+                ),
             )
         return Response(
             {"detail": "users have been associated with the project successfully"},

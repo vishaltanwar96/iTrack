@@ -5,6 +5,7 @@ from .models import Task
 from .serializers import TaskSerializer
 from shared.models import Status
 from itrack.permissions import IsAccessAllowedToGroup
+from itrack.communication_messages import EMAIL_BODY, EMAIL_SUBJECT
 
 
 class TaskViewSet(viewsets.ModelViewSet):
@@ -13,6 +14,7 @@ class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
     permission_classes = [IsAccessAllowedToGroup]
+    NEW_TASK_EVENT = "NEW_TASK"
 
     def perform_create(self, serializer):
         """."""
@@ -40,8 +42,15 @@ class TaskViewSet(viewsets.ModelViewSet):
         assigned_to_user = serializer.validated_data["assigned_to"]
         task = self.perform_create(serializer)
         assigned_to_user.email_user(
-            subject="NEW TASK ALERT",
-            message=f"Greetings!\n{assigned_to_user.first_name} {assigned_to_user.last_name},\nNew task has been assigned to you by {task.assigned_by.first_name} {task.assigned_by.last_name}\nDetails:\nTask ID: #{task.id}\nTask: {task.name}\n\nSincerely\niTrack",
+            subject=EMAIL_SUBJECT[self.NEW_TASK_EVENT],
+            message=EMAIL_BODY[self.NEW_TASK_EVENT].format(
+                assignee_first_name=assigned_to_user.first_name,
+                assignee_last_name=assigned_to_user.last_name,
+                assignor_first_name=task.assigned_by.first_name,
+                assignor_last_name=task.assigned_by.last_name,
+                task_id=task.id,
+                task_name=task.name,
+            ),
         )
         headers = self.get_success_headers(serializer.data)
         return Response(
