@@ -16,5 +16,3 @@ class TaskSerializer(serializers.ModelSerializer):
             "actual_completion_date",
             "reviewed_by",
         )
-
-        extra_kwargs = {"created_by": {"default": serializers.CurrentUserDefault()}}

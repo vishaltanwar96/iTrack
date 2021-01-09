@@ -14,10 +14,8 @@ class ProjectSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
             "is_active",
+            "users",
         )
-        extra_kwargs = {
-            "created_by": {"default": serializers.CurrentUserDefault()},
-        }
 
 
 class ProjectUsersSerializer(serializers.Serializer):
@@ -35,7 +33,4 @@ class ProjectRemarksHistorySerializer(serializers.ModelSerializer):
         model = ProjectRemarksHistory
         fields = "__all__"
         ordering = ["-created_at"]
-        read_only_fields = ("created_by",)
-        extra_kwargs = {
-            "created_by": {"default": serializers.CurrentUserDefault()},
-        }
+        read_only_fields = ("created_by", "created_at")
