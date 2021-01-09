@@ -15,7 +15,9 @@ EMAIL_BODY = {
         "Dear {assignee_first_name} {assignee_last_name},\n\n"
         "A new task has been assigned to you "
         "by {assignor_first_name} {assignor_last_name}\n\nDetails:\n"
-        "Task ID: #{task_id}\nTask: {task_name}\n\n%s" % ITRACK_SIGNATURE
+        "Task ID: #{task_id}\nTask: {task_name}\n\n"
+        "Please head to the portal for more details.\n\n"
+        "%s" % ITRACK_SIGNATURE
     ),
     "NEW_PROJECT_ASSOCIATION": (
         "Dear {user_first_name} {user_last_name},\n\n"
